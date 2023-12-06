@@ -1,1 +1,34 @@
+###Time dependent Cox proportional hazard regression model
+library("ggplot2"); library("ggpubr")
+library("survival");
+library(dlnm) ; library(splines)
+library(foreign) 
 
+colnames(newdata2)[22] <- "ptb"
+
+# DETERMINE THE FAILURE TIMES
+ftime <- sort(unique(newdata2$FMYZ[newdata2$ptb==1]))
+list(ftime)
+
+# SPLIT THE DATASET
+function(survSplit)
+  birthspl <-survSplit(Surv(FMYZ, ptb)~., newdata2, cut=ftime, start="gesst",
+                       end="gesexit", event="ptb")
+birthspl <- birthspl[order(birthspl$id,birthspl$gesexit),] 
+birthspl<- birthspl[birthspl$gesexit%in%ftime,]  
+birthspl <- birthspl[order(birthspl$id,birthspl$gesexit),]
+
+fitYcox <- coxph (Surv(time, event) ~ exposure + covariates + timevaryingcovariates :strata(tgroup), birthspl)
+
+zph <- cox.zph(fitYcox )
+zph
+plot(zph[2],lwd=2)
+abline(0,0, col=1,lty=3,lwd=2)
+abline(h= fitYcox $coef[2], col=3, lwd=2, lty=2)
+legend("bottomright",
+         legend=c('Reference line for null effect',
+                  "Average hazard over time",
+                  "Time-varying hazard"),
+         lty=c(3,2,1), col=c(1,3,1), lwd=2)
+
+summary(fitYcox)
