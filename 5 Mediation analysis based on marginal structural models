@@ -1,0 +1,17 @@
+#original mediation code can be found in Epidemiology. 2014;25(3):389–396
+#Step 1: predict mediator  d$expTemp<-d$exp fitM<-glm(med ~ factor(expTemp) + covariates, data=d, family=binomial())
+
+#Step 2: replicate data with different exposures N<-nrow(d) d$id<-1:N levelsofexp<-unique(d$exp) d1<-d d2<-d d1$expstar<- levelsofexp[1] d2$expstar<- levelsofexp[2] newmyd<-rbind(d1, d2) 
+#Step 3: computing weights newmyd$expTemp<-newmyd$expw <-predict(fitM, type="lp", newd=newmyd) tempDir <-ifelse(newmyd$med, w, 1-w)
+
+newmyd$expTemp<-newmyd$expstar
+w<-predict(fitM, type="response", newd=newmyd) tempIndir<-ifelse(newmyd$med, w, 1-w)
+
+newmyd$weightM<- tempIndir/tempDir #summary(newmydata$weightM) #hist(newmydata$weightM)
+
+#Step4: weighted cox model (*no interaction between exposure and mediator)
+fitYcox <- coxph(Surv(time, event) ~ const(factor(exp))+const(factor(expstar)) + covariates + timevaryingcovariates :strata(tgroup), data=newmyd, weights=newmyd$weightM)
+
+#Step 5: return value
+TE_med = exp(sum(coef(fitYcox)[c('const(factor(exp))1','const(factor(expstar))1')]))
+DE_med = exp(unname(coef(fitYcox)['const(factor(exp))1'])) IE_med = exp(sum(coef(fitYcox)[c('const(factor(expstar))1')])) PM_med = log(IE_med)/log(TE_med)
