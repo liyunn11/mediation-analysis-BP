@@ -1,0 +1,32 @@
+##exp: exposure
+##med: mediator  fitM<-glm(med ~ factor(exp) + covariates, data=d, family=binomial())
+getIORWEst <- function(data){
+  fitYcox <- coxph (Surv(time, event) ~ exp + covariates + timevaryingcovariates :strata(tgroup), data)
+  fitMYcox <- coxph (Surv(time, event) ~ exp + med + covariates + timevaryingcovariates :strata(tgroup), data)
+  TE = exp(coef(fitYcox)[c('const(factor(exp))1'])
+  DE= exp(coef(fitMYcox)[c('const(factor(exp))1'])
+  IE= exp(coef(fitMYcox)[c('const(factor(med))1']* coef(fitM)[c('const(factor(exp))1']*)
+  PM-med= HR(NDE)(HR(NIE)-)/(HR(NDE)xHR(NIE)-1)
+  Est <- c(TE,DE,IE,PM-med)
+  exp(Est)
+  return(Est)
+}
+
+N <- 1000
+bootSample <- data.frame(matrix(NA,ncol=3,nrow=N))
+for (i in (1:N)){
+  inx <- sample(1:dim(data)[1],dim(data)[1],replace=T)
+  bootData <- data[inx, ]
+  bootSample[i,] <- getIORWEst(bootData)
+}
+
+CI <- apply(bootSample,2,function(k)quantile(k,c(0.025,0.975)))
+Est <- apply(bootSample,2,mean)
+Estimates <- t(rbind(Est,CI))
+Estimates
+
+#pm 
+HR<-exp(bootSample)
+pm<-HR[,2]*(HR[,3]-1)/(HR[,2]*HR[,3]-1)
+quantile(pm,c(0.025,0.975))
+mean(pm) 
