@@ -1,8 +1,8 @@
 library(nnet)
-newdata3$M<-as.factor(newdata3$M)
-newdata3$M= relevel(newdata3$M, ref = "1")
-str(newdata3)
-fit <- multinom(M~ exposure + covariates,family=binomial(link='logit'), data = newdata3, model = T)
+data$M<-as.factor(data$M)
+data$M= relevel(data$M, ref = "1")
+str(data)
+fit <- multinom(M~ exposure + covariates,family=binomial(link='logit'), data = data, model = T)
 summary(fit)
 
 z_stats <- summary(fit)$coefficients/summary(fit)$standard.errors
@@ -12,9 +12,9 @@ p_values
 OR <- exp(coef(fit))
 OR.confi <- exp(confint(fit))
 
-fit0 <- multinom(M ~ 1, data = newdata3, model = T)
+fit0 <- multinom(M ~ 1, data = data, model = T)
 anova(fit0, fit)
 
-prob <- predict(fit, newdata3, type = "probs")
-chisq.test(newdata3$M, pred)
+prob <- predict(fit, data, type = "probs")
+chisq.test(data$M, pred)
 DescTools::PseudoR2(fit, which = "all")
