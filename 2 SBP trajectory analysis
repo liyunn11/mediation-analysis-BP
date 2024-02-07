@@ -7,7 +7,7 @@ data = spbtraj
 # a predetermined number of clusters
 s1 = step1measures(data, ID=TRUE)
 s2 = step2factors(s1)
-s3.2clusters = step3clusters(s2, nclust = 2)
+
 s3.3clusters = step3clusters(s2, nclust = 3)
 s3.4clusters = step3clusters(s2, nclust = 4)
 head(s3.4clusters$factors)
