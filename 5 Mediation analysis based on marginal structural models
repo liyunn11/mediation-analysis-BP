@@ -1,9 +1,21 @@
 #original mediation code can be found in Epidemiology. 2014;25(3):389–396
-#Step 1: predict mediator  d$expTemp<-d$exp fitM<-glm(med ~ factor(expTemp) + covariates, data=d, family=binomial())
+#Step 1: predict mediator  
+data$expTemp<-data$exp 
+fitM<-glm(med ~ factor(expTemp) + covariates, data=data, family=binomial())
 
-#Step 2: replicate data with different exposures N<-nrow(d) d$id<-1:N levelsofexp<-unique(d$exp) d1<-d d2<-d d1$expstar<- levelsofexp[1] d2$expstar<- levelsofexp[2] newmyd<-rbind(d1, d2) 
-#Step 3: computing weights newmyd$expTemp<-newmyd$expw <-predict(fitM, type="lp", newd=newmyd) tempDir <-ifelse(newmyd$med, w, 1-w)
+#Step 2: replicate data with different exposures 
+N<-nrow(d) 
+data$id<-1:N 
+levelsofexp<-unique(data$exp) 
+d1<-data 
+d2<-data 
+d1$expstar<- levelsofexp[1] 
+d2$expstar<- levelsofexp[2] 
+newmyd<-rbind(d1, d2) 
 
+#Step 3: computing weights 
+newmyd$expTemp<-newmyd$expw <-predict(fitM, type="lp", newd=newmyd) 
+tempDir <-ifelse(newmyd$med, w, 1-w)
 newmyd$expTemp<-newmyd$expstar
 w<-predict(fitM, type="response", newd=newmyd) tempIndir<-ifelse(newmyd$med, w, 1-w)
 
