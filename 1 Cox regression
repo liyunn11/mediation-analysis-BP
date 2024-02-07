@@ -4,21 +4,22 @@ library("survival");
 library(dlnm) ; library(splines)
 library(foreign) 
 
-colnames(newdata2)[22] <- "ptb"
+colnames(data)[22] <- "ptb"
 
 # DETERMINE THE FAILURE TIMES
-ftime <- sort(unique(newdata2$FMYZ[newdata2$ptb==1]))
+ftime <- sort(unique(data$FMYZ[data$ptb==1]))
 list(ftime)
 
 # SPLIT THE DATASET
 function(survSplit)
-  birthspl <-survSplit(Surv(FMYZ, ptb)~., newdata2, cut=ftime, start="gesst",
+  birthspl <-survSplit(Surv(FMYZ, ptb)~., data, cut=ftime, start="gesst",
                        end="gesexit", event="ptb")
 birthspl <- birthspl[order(birthspl$id,birthspl$gesexit),] 
 birthspl<- birthspl[birthspl$gesexit%in%ftime,]  
 birthspl <- birthspl[order(birthspl$id,birthspl$gesexit),]
 
 fitYcox <- coxph (Surv(time, event) ~ exposure + covariates + timevaryingcovariates :strata(tgroup), birthspl)
+summary(fitYcox)
 
 zph <- cox.zph(fitYcox )
 zph
