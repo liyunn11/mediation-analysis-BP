@@ -1,5 +1,5 @@
 ##exp: exposure
-##med: mediator  fitM<-glm(med ~ factor(exp) + covariates, data=d, family=binomial())
+##med: mediator  fitM<-glm(med ~ factor(exp) + covariates, data=date, family=binomial())
 getIORWEst <- function(data){
   fitYcox <- coxph (Surv(time, event) ~ exp + covariates + timevaryingcovariates :strata(tgroup), data)
   fitMYcox <- coxph (Surv(time, event) ~ exp + med + covariates + timevaryingcovariates :strata(tgroup), data)
